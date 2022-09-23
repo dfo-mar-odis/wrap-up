@@ -4,11 +4,11 @@ from datetime import datetime
 class Car:
     wheel_num = 5
     oil_tank_size = 7
-    oil_change_dates = []
 
     def __init__(self, car_make, year):
         self.car_make = car_make
         self.year = year
+        self.oil_change_dates = []
 
         self.hood_open = False
         self.oil_level = self.oil_tank_size
