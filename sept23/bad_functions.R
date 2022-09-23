@@ -56,6 +56,8 @@ less_x_ticks <- function(inPlot, tickNum=5) {
   return(outPlot)
 }
 
+
+########################################################THE BAD FUNCTION#######################################
 # Function for plotting point data for the reproducible report.
 #
 # Inputs:

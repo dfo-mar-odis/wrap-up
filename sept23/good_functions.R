@@ -56,31 +56,21 @@ less_x_ticks <- function(inPlot, tickNum=5) {
   return(outPlot)
 }
 
-# Function for plotting point data for the reproducible report.
-#
-# Inputs:
-# 1. baseMap = map object, either areaMap or regionMap
-# 2. data_sf: sf data to be plotted
-#    (ideally, pre-clipped to map area with the master_intersect function, using bboxMap, or regionBox)
-# 3. attribute: column name of factor data in data_sf.
-#               this attribute name will appear in the legend. For single color polygons leave blank
-# 4. legendName: string, sets the name of the legend for cases where the attribute is not appropriate. Defaults to
-#                the attribute.
-# 5. colorMap: named list of colours used to set the scale. Names should match factors from attribute col,
-#              values should be color codes.  eg. WhaleCol.
-# 6. shapeMap: Similar to colorMap except with values of the R shape codes (eg, 15, 16, ...) instead of colours.
-#
-#
-# Created by Quentin Stoyel, September 2, 2021 for reproducible reporting project
+####################################THE BETTER FUNCTION #########################################
+# Improvements:
+# Better parameter names, reduced list
+# Clearer workflow, complexity abstracted into smaller routines
+# Now has more obvious single purpose: plotting the points, not sorting the data
+# almost better documented despite much less documentation (!)
 
-plot_points <- function(baseMap, data_sf, attribute="NONE",
-                        baseAes, labelAes, shapeAes, legendAes) {
+# Double check function is needed: Yes, should not need to think about scraping common layers each time.
+plot_points <- function(baseMap, data_sf, baseAes, labelAes, shapeAes, legendAes) {
 
   # sample AES lists:
-  baseAes <- list(size=2.5, shape=20, color="black")
-  shapeAes <- list(shapes=FALSE, map=shapeMap, )
-  legendAes <- list(legend=FALSE, continuous=continuousAttr, minScale=minScale, maxScale=maxScale)
-  labelAes <- list(labels=FALSE, data=lableData, attribute=labelAttribute)
+  # baseAes <- list(attribute="NONE", size=2.5, shape=20, color="black")
+  # shapeAes <- list(shapes=FALSE, map=shapeMap, )
+  # legendAes <- list(legend=FALSE, continuous=continuousAttr, minScale=minScale, maxScale=maxScale)
+  # labelAes <- list(labels=FALSE, data=lableData, attribute=labelAttribute)
 
   # get non changing levels:
   scaleBarLayer <- get_scale_bar_layer(baseMap)
@@ -89,25 +79,14 @@ plot_points <- function(baseMap, data_sf, attribute="NONE",
   axLim <- ggplot2::coord_sf(xlim=baseMap$coordinates$limits$x,
                              ylim=baseMap$coordinates$limits$y, expand=FALSE)
 
-
-  shapeLayer <- NULL
-  legendLayer <- NULL
-  labelLayer <- NULL
-  dataLayer <- NULL
-
-  if (toupper(attribute) == "NONE") {
-    # just plot raw data (no colors, shapes, etc)
-    dataLayer <- geom_sf(data = data_sf, size = size, shape = shape, color=color)
-  } else {
-    legendLayer <- scale_bar_layer(data_sf, attribute, continuousAttr,
-                                     minScale, maxScale, legendName, fill=FALSE)
-    shapeLayer <- get_discrete_shape_layer(someParams)
-    dataLayer <- geom_sf(data = data_sf, aes(color=!!sym(attribute)), size = size, shape = shape)
-  }
-
+  # create custom layers:
+  shapeLayer <- get_discrete_shape_layer(someParams)
+  legendLayer <- scale_bar_layer(data_sf, attribute, continuousAttr,
+                                 minScale, maxScale, legendName, fill=FALSE)
   labelLayer <- get_label_layer(baseMap, labelData, labelAttribute, geometry)
+  dataLayer <- get_data_layer(data_sf, baseAes)
 
-
+  # rebuild plot
   pointMap <- baseMap +
     dataLayer +
     shapeLayer +
