@@ -19,45 +19,7 @@ library(ggspatial)
 library(graphics)
 
 
-# helper function, extracts the scale bar from either the areaMap or regionMap
-get_scale_bar_layer <- function(inPlot) {
-  scaleBarLayer <- lapply(inPlot$layers, function(inLayer) if("GeomScaleBar" %in% class(inLayer$geom)) inLayer else NULL)
-  scaleBarLayer <- scaleBarLayer[!sapply(scaleBarLayer, is.null)]
-  return(scaleBarLayer)
-}
-
-
-# helper function, extracts the watermark layer from either the areaMap or regionMap
-get_watermark_layer <- function(inPlot) {
-  watermarkLayer <- lapply(inPlot$layers, function(inLayer) if("GeomCustomAnn" %in% class(inLayer$geom)) inLayer else NULL)
-  watermarkLayer <- watermarkLayer[!sapply(watermarkLayer, is.null)]
-  return(watermarkLayer)
-}
-
-
-# helper function, extracts the study_box_layer from either the areaMap or regionMap
-# selection criteria is based off of colour, use with care.
-get_study_box_layer <- function(inPlot) {
-  studyBoxLayer <- lapply(inPlot$layers, function(inLayer) if("red" %in% c(inLayer$aes_params$colour)) inLayer else NULL)
-  studyBoxLayer <- studyBoxLayer[!sapply(studyBoxLayer, is.null)]
-  return(studyBoxLayer)
-}
-
-# helper function to reduce tick mark counts on plots
-less_x_ticks <- function(inPlot, tickNum=5) {
-  xmin <- inPlot$coordinates$limits$x[1]
-  xmax <- inPlot$coordinates$limits$x[2]
-  #set outplot axis tick marks
-  axisSigFigs <- ceiling(log10(xmax - xmin))
-  digits <- ifelse(axisSigFigs < 0, -axisSigFigs, 1)
-  breakVec <- round(seq(xmin, xmax, length.out = tickNum),
-                    digits = digits)
-  outPlot <- inPlot + scale_x_continuous(breaks = breakVec)
-  return(outPlot)
-}
-
-
-########################################################THE BAD FUNCTION#######################################
+########################################################THE BAD FUNCTION #######################################
 # Function for plotting point data for the reproducible report.
 #
 # Inputs:
@@ -65,7 +27,7 @@ less_x_ticks <- function(inPlot, tickNum=5) {
 # 2. data_sf: sf data to be plotted
 #    (ideally, pre-clipped to map area with the master_intersect function, using bboxMap, or regionBox)
 # 3. attribute: column name of factor data in data_sf.
-#               this attribute name will appear in the legend. For single color polygons leave blank
+#               this attribute name will appear in the legend. For single color points set to "NONE"
 # 4. legendName: string, sets the name of the legend for cases where the attribute is not appropriate. Defaults to
 #                the attribute.
 # 5. colorMap: named list of colours used to set the scale. Names should match factors from attribute col,
@@ -148,6 +110,43 @@ plot_points <- function(baseMap, data_sf, attribute="NONE", legendName="",
 }
 
 
+
+# helper function, extracts the scale bar from either the areaMap or regionMap
+get_scale_bar_layer <- function(inPlot) {
+  scaleBarLayer <- lapply(inPlot$layers, function(inLayer) if("GeomScaleBar" %in% class(inLayer$geom)) inLayer else NULL)
+  scaleBarLayer <- scaleBarLayer[!sapply(scaleBarLayer, is.null)]
+  return(scaleBarLayer)
+}
+
+
+# helper function, extracts the watermark layer from either the areaMap or regionMap
+get_watermark_layer <- function(inPlot) {
+  watermarkLayer <- lapply(inPlot$layers, function(inLayer) if("GeomCustomAnn" %in% class(inLayer$geom)) inLayer else NULL)
+  watermarkLayer <- watermarkLayer[!sapply(watermarkLayer, is.null)]
+  return(watermarkLayer)
+}
+
+
+# helper function, extracts the study_box_layer from either the areaMap or regionMap
+# selection criteria is based off of colour, use with care.
+get_study_box_layer <- function(inPlot) {
+  studyBoxLayer <- lapply(inPlot$layers, function(inLayer) if("red" %in% c(inLayer$aes_params$colour)) inLayer else NULL)
+  studyBoxLayer <- studyBoxLayer[!sapply(studyBoxLayer, is.null)]
+  return(studyBoxLayer)
+}
+
+# helper function to reduce tick mark counts on plots
+less_x_ticks <- function(inPlot, tickNum=5) {
+  xmin <- inPlot$coordinates$limits$x[1]
+  xmax <- inPlot$coordinates$limits$x[2]
+  #set outplot axis tick marks
+  axisSigFigs <- ceiling(log10(xmax - xmin))
+  digits <- ifelse(axisSigFigs < 0, -axisSigFigs, 1)
+  breakVec <- round(seq(xmin, xmax, length.out = tickNum),
+                    digits = digits)
+  outPlot <- inPlot + scale_x_continuous(breaks = breakVec)
+  return(outPlot)
+}
 
 # helper function to generate colormap when not specified.
 # RR color scheme is used for first 8 colors, after which the viridis

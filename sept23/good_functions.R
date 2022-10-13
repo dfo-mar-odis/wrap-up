@@ -19,49 +19,18 @@ library(ggspatial)
 library(graphics)
 
 
-# helper function, extracts the scale bar from either the areaMap or regionMap
-get_scale_bar_layer <- function(inPlot) {
-  scaleBarLayer <- lapply(inPlot$layers, function(inLayer) if("GeomScaleBar" %in% class(inLayer$geom)) inLayer else NULL)
-  scaleBarLayer <- scaleBarLayer[!sapply(scaleBarLayer, is.null)]
-  return(scaleBarLayer)
-}
 
 
-# helper function, extracts the watermark layer from either the areaMap or regionMap
-get_watermark_layer <- function(inPlot) {
-  watermarkLayer <- lapply(inPlot$layers, function(inLayer) if("GeomCustomAnn" %in% class(inLayer$geom)) inLayer else NULL)
-  watermarkLayer <- watermarkLayer[!sapply(watermarkLayer, is.null)]
-  return(watermarkLayer)
-}
 
 
-# helper function, extracts the study_box_layer from either the areaMap or regionMap
-# selection criteria is based off of colour, use with care.
-get_study_box_layer <- function(inPlot) {
-  studyBoxLayer <- lapply(inPlot$layers, function(inLayer) if("red" %in% c(inLayer$aes_params$colour)) inLayer else NULL)
-  studyBoxLayer <- studyBoxLayer[!sapply(studyBoxLayer, is.null)]
-  return(studyBoxLayer)
-}
-
-# helper function to reduce tick mark counts on plots
-less_x_ticks <- function(inPlot, tickNum=5) {
-  xmin <- inPlot$coordinates$limits$x[1]
-  xmax <- inPlot$coordinates$limits$x[2]
-  #set outplot axis tick marks
-  axisSigFigs <- ceiling(log10(xmax - xmin))
-  digits <- ifelse(axisSigFigs < 0, -axisSigFigs, 1)
-  breakVec <- round(seq(xmin, xmax, length.out = tickNum),
-                    digits = digits)
-  outPlot <- inPlot + scale_x_continuous(breaks = breakVec)
-  return(outPlot)
-}
 
 ####################################THE BETTER FUNCTION #########################################
 # Improvements:
 # Better parameter names, reduced list
 # Clearer workflow, complexity abstracted into smaller routines
 # Now has more obvious single purpose: plotting the points, not sorting the data
-# almost better documented despite much less documentation (!)
+# better documented despite much less documentation (!)
+# no more lying comment
 
 # Double check function is needed: Yes, should not need to think about scraping common layers each time.
 plot_points <- function(baseMap, data_sf, baseAes, labelAes, shapeAes, legendAes) {
@@ -99,6 +68,45 @@ plot_points <- function(baseMap, data_sf, baseAes, labelAes, shapeAes, legendAes
 
   return(pointMap)
 }
+
+
+# helper function, extracts the scale bar from either the areaMap or regionMap
+get_scale_bar_layer <- function(inPlot) {
+  scaleBarLayer <- lapply(inPlot$layers, function(inLayer) if("GeomScaleBar" %in% class(inLayer$geom)) inLayer else NULL)
+  scaleBarLayer <- scaleBarLayer[!sapply(scaleBarLayer, is.null)]
+  return(scaleBarLayer)
+}
+
+
+# helper function, extracts the watermark layer from either the areaMap or regionMap
+get_watermark_layer <- function(inPlot) {
+  watermarkLayer <- lapply(inPlot$layers, function(inLayer) if("GeomCustomAnn" %in% class(inLayer$geom)) inLayer else NULL)
+  watermarkLayer <- watermarkLayer[!sapply(watermarkLayer, is.null)]
+  return(watermarkLayer)
+}
+
+
+# helper function, extracts the study_box_layer from either the areaMap or regionMap
+# selection criteria is based off of colour, use with care.
+get_study_box_layer <- function(inPlot) {
+  studyBoxLayer <- lapply(inPlot$layers, function(inLayer) if("red" %in% c(inLayer$aes_params$colour)) inLayer else NULL)
+  studyBoxLayer <- studyBoxLayer[!sapply(studyBoxLayer, is.null)]
+  return(studyBoxLayer)
+}
+
+# helper function to reduce tick mark counts on plots
+less_x_ticks <- function(inPlot, tickNum=5) {
+  xmin <- inPlot$coordinates$limits$x[1]
+  xmax <- inPlot$coordinates$limits$x[2]
+  #set outplot axis tick marks
+  axisSigFigs <- ceiling(log10(xmax - xmin))
+  digits <- ifelse(axisSigFigs < 0, -axisSigFigs, 1)
+  breakVec <- round(seq(xmin, xmax, length.out = tickNum),
+                    digits = digits)
+  outPlot <- inPlot + scale_x_continuous(breaks = breakVec)
+  return(outPlot)
+}
+
 
 # helper function to generate colormap when not specified.
 # RR color scheme is used for first 8 colors, after which the viridis
